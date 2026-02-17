@@ -17,8 +17,8 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Task Management API")
-                        .description("API for managing user tasks with JWT authentication")
+                        .title("Chat Application API")
+                        .description("API for a Chat app with JWT authentication")
                         .version("1.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
