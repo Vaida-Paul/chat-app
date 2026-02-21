@@ -40,5 +40,5 @@ public class Message {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    private Boolean deleted = false;
+    private boolean deleted = false;
 }
