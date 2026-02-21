@@ -40,6 +40,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @PrePersist
     private void generateCode() {
         if (code == null) {
             code = "#" + Long.toHexString(System.currentTimeMillis() % 1000000);

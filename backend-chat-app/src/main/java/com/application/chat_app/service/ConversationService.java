@@ -4,20 +4,18 @@ import com.application.chat_app.dto.ConversationDTO;
 import com.application.chat_app.dto.MessageDTO;
 import com.application.chat_app.dto.UserDTO;
 import com.application.chat_app.mapper.UserMapper;
-import com.application.chat_app.model.Conversation;
-import com.application.chat_app.model.ConversationParticipant;
-import com.application.chat_app.model.ConversationParticipantId;
-import com.application.chat_app.model.User;
-import com.application.chat_app.repository.BlockRepository;
-import com.application.chat_app.repository.ConversationParticipantRepository;
-import com.application.chat_app.repository.ConversationRepository;
-import com.application.chat_app.repository.UserRepository;
+import com.application.chat_app.model.*;
+import com.application.chat_app.projection.ConversationListView;
+import com.application.chat_app.repository.*;
 import com.application.chat_app.util.SecurityUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springdoc.core.service.SecurityService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -29,13 +27,17 @@ public class ConversationService {
     private final UserRepository userRepository;
     private final BlockRepository blockRepository;
     private final SecurityUtil securityUtil;
+    private final MessageRepository messageRepository;
+    private final MessageStatusRepository messageStatusRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, ConversationParticipantRepository participantRepository, UserRepository userRepository, BlockRepository blockRepository, SecurityUtil securityUtil) {
+    public ConversationService(ConversationRepository conversationRepository, ConversationParticipantRepository participantRepository, UserRepository userRepository, BlockRepository blockRepository, SecurityUtil securityUtil,  MessageRepository messageRepository,  MessageStatusRepository messageStatusRepository) {
         this.conversationRepository = conversationRepository;
         this.participantRepository = participantRepository;
         this.userRepository = userRepository;
         this.blockRepository = blockRepository;
         this.securityUtil = securityUtil;
+        this.messageRepository = messageRepository;
+        this.messageStatusRepository = messageStatusRepository;
     }
 
     @Transactional
@@ -94,5 +96,75 @@ public class ConversationService {
                 unreadCount,
                 lastMessageTimestamp
         );
+    }
+    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
+        User currentUser =  securityUtil.getCurrentUser();
+        Page<ConversationListView> page = conversationRepository.findUserConversations(currentUser.getId(), pageable);
+        return page.map(this::convertToDTO);
+    }
+    private ConversationDTO convertToDTO(ConversationListView view) {
+        UserDTO otherUser = new UserDTO(
+                view.getOtherUserId(),
+                view.getOtherUsername(),
+                view.getOtherEmail(),
+                view.getOtherCode(),
+                false
+        );
+
+
+        MessageDTO lastMessage = null;
+        if (view.getLastMessageContent() != null) {
+            lastMessage = new MessageDTO(
+                    null,
+                    view.getLastMessageContent(),
+                    view.getLastMessageSenderId(),
+                    null,
+                    view.getLastMessageTimestamp(),
+                    false,
+                    null
+            );
+        }
+
+        return new ConversationDTO(
+                view.getConversationId(),
+                otherUser,
+                lastMessage,
+                view.getUnreadCount(),
+                view.getLastMessageTimestamp()
+        );
+
+
+    }
+    public Page<MessageDTO> getConversationMessages(Long conversationId, Pageable page) {
+        User currentUser = securityUtil.getCurrentUser();
+        ConversationParticipantId participantId = new ConversationParticipantId(conversationId, currentUser.getId());
+
+        if (!participantRepository.existsById(participantId)) {
+            throw new EntityNotFoundException("Participant not found");
+        }
+
+        Page<Message> messagePage = messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, page);
+
+        return messagePage.map(message -> {
+            String status = null;
+
+            if (message.getSender().getId().equals(currentUser.getId())) {
+                MessageStatusId statusId = new MessageStatusId(message.getId(), currentUser.getId());
+                MessageStatus messageStatus = messageStatusRepository.findById(statusId).orElse(null);
+                status = messageStatus != null ? messageStatus.getStatus().name() : "SENT";
+            } else {
+                status = "SENT";
+            }
+            return new MessageDTO(
+                    message.getId(),
+                    message.isDeleted() ? null : message.getContent(),
+                    message.getSender().getId(),
+                    message.getSender().getUsername(),
+                    message.getCreatedAt(),
+                    message.isDeleted(),
+                    status
+            );
+        });
+
     }
 }
