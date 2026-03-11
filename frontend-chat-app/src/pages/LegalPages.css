@@ -1,0 +1,160 @@
+.page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.card {
+  max-width: 800px;
+  width: 100%;
+  background: white;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 2.5rem 0.5rem 2.5rem;
+}
+@media (max-width: 600px) {
+  .header {
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+  }
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+}
+
+.appName {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  padding: 0 2.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+@media (max-width: 600px) {
+  .title {
+    font-size: 2rem;
+    padding: 0 1.5rem;
+  }
+}
+
+.lastUpdated {
+  font-size: 0.9rem;
+  color: #86868b;
+  margin: 0.5rem 0 0;
+  padding: 0 2.5rem;
+}
+@media (max-width: 600px) {
+  .lastUpdated {
+    padding: 0 1.5rem;
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2.5rem 2rem 2.5rem;
+  color: #3a3a3c;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+@media (max-width: 600px) {
+  .content {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+  }
+}
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+.content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+.content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+.content section {
+  margin-bottom: 2rem;
+}
+.content section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.01em;
+}
+.content section p {
+  margin: 0 0 0.75rem 0;
+}
+.content section ul {
+  margin: 0.5rem 0 0 1.25rem;
+  padding: 0;
+}
+.content section li {
+  margin-bottom: 0.4rem;
+}
+.content a {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.1s;
+}
+.content a:hover {
+  color: #004999;
+  text-decoration: underline;
+}
+
+.footer {
+  padding: 1.25rem 2.5rem 2rem 2.5rem;
+  border-top: 1px solid #e8e8ed;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.95rem;
+}
+@media (max-width: 600px) {
+  .footer {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    gap: 1rem;
+  }
+}
+
+.link {
+  color: #515154;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.1s;
+}
+.link:hover {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+.separator {
+  color: #c6c6c8;
+}/*# sourceMappingURL=LegalPages.css.map */
