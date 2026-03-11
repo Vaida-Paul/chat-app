@@ -14,10 +14,13 @@ public class RegisterRequest {
 
     @NotBlank
     @Email
-    @Size(min=8, max=30)
+    @Size(min = 8, max = 30)
     private String email;
 
     @NotBlank
-    @Size(min=6, max=40)
+    @Size(min = 8, max = 40)
     private String password;
+
+    @NotBlank
+    private String captchaToken;
 }
