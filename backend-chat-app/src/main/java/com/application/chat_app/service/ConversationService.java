@@ -84,17 +84,22 @@ public class ConversationService {
     private ConversationDTO buildConversationDTO(Conversation conversation, User currentUser, User otherUser) {
         UserDTO otherUserDTO = UserMapper.userToUserDTO(otherUser);
 
-        MessageDTO lastMessage = null;
-        long unreadCount = 0;
-        LocalDateTime lastMessageTimestamp = null;
 
+        Message lastMsg = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversation.getId()).orElse(null);
+        MessageDTO lastMessageDTO = lastMsg != null ?
+                new MessageDTO(lastMsg.getId(), lastMsg.getContent(), lastMsg.getSender().getId(),
+                        lastMsg.getSender().getUsername(), lastMsg.getSender().getAvatarUrl(), lastMsg.getCreatedAt(), lastMsg.isDeleted(), null, conversation.getId(), lastMsg.getAttachmentUrl(), lastMsg.getAttachmentType()) : null;
+
+        long unreadCount = 0;
+        LocalDateTime lastMsgTime = lastMsg != null ? lastMsg.getCreatedAt() : null;
 
         return new ConversationDTO(
                 conversation.getId(),
                 otherUserDTO,
-                lastMessage,
+                lastMessageDTO,
                 unreadCount,
-                lastMessageTimestamp
+                lastMsgTime,
+                otherUser.getAvatarUrl()
         );
     }
     public Page<ConversationDTO> getUserConversations(Pageable pageable) {
@@ -108,7 +113,8 @@ public class ConversationService {
                 view.getOtherUsername(),
                 view.getOtherEmail(),
                 view.getOtherCode(),
-                false
+                false,
+                view.getAvatarUrl()
         );
 
 
@@ -119,8 +125,12 @@ public class ConversationService {
                     view.getLastMessageContent(),
                     view.getLastMessageSenderId(),
                     null,
+                    view.getAvatarUrl(),
                     view.getLastMessageTimestamp(),
                     false,
+                    null,
+                    view.getConversationId(),
+                    null,
                     null
             );
         }
@@ -130,41 +140,60 @@ public class ConversationService {
                 otherUser,
                 lastMessage,
                 view.getUnreadCount(),
-                view.getLastMessageTimestamp()
+                view.getLastMessageTimestamp(),
+                view.getAvatarUrl()
         );
 
 
     }
-    public Page<MessageDTO> getConversationMessages(Long conversationId, Pageable page) {
-        User currentUser = securityUtil.getCurrentUser();
-        ConversationParticipantId participantId = new ConversationParticipantId(conversationId, currentUser.getId());
 
-        if (!participantRepository.existsById(participantId)) {
-            throw new EntityNotFoundException("Participant not found");
+public Page<MessageDTO> getConversationMessages(Long conversationId, Pageable page) {
+    User currentUser = securityUtil.getCurrentUser();
+    ConversationParticipantId participantId =
+            new ConversationParticipantId(conversationId, currentUser.getId());
+
+    if (!participantRepository.existsById(participantId)) {
+        throw new EntityNotFoundException("Participant not found");
+    }
+
+
+    ConversationParticipant otherParticipant = participantRepository
+            .findByConversationIdAndUserIdNot(conversationId, currentUser.getId())
+            .orElse(null);
+
+    Page<Message> messagePage = messageRepository
+            .findByConversationIdOrderByCreatedAtDesc(conversationId, page);
+
+    return messagePage.map(message -> {
+        boolean isMine = message.getSender().getId().equals(currentUser.getId());
+        String status = "SENT";
+
+        if (isMine && otherParticipant != null) {
+
+            MessageStatusId statusId = new MessageStatusId(
+                    otherParticipant.getUser().getId(),
+                    message.getId()
+            );
+            MessageStatus messageStatus = messageStatusRepository.findById(statusId).orElse(null);
+            status = messageStatus != null ? messageStatus.getStatus().name() : "SENT";
+        } else {
+
+            status = null;
         }
 
-        Page<Message> messagePage = messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, page);
-
-        return messagePage.map(message -> {
-            String status = null;
-
-            if (message.getSender().getId().equals(currentUser.getId())) {
-                MessageStatusId statusId = new MessageStatusId(message.getId(), currentUser.getId());
-                MessageStatus messageStatus = messageStatusRepository.findById(statusId).orElse(null);
-                status = messageStatus != null ? messageStatus.getStatus().name() : "SENT";
-            } else {
-                status = "SENT";
-            }
-            return new MessageDTO(
-                    message.getId(),
-                    message.isDeleted() ? null : message.getContent(),
-                    message.getSender().getId(),
-                    message.getSender().getUsername(),
-                    message.getCreatedAt(),
-                    message.isDeleted(),
-                    status
-            );
-        });
-
-    }
+        return new MessageDTO(
+                message.getId(),
+                message.isDeleted() ? null : message.getContent(),
+                message.getSender().getId(),
+                message.getSender().getUsername(),
+                message.getSender().getAvatarUrl(),
+                message.getCreatedAt(),
+                message.isDeleted(),
+                status,
+                conversationId,
+                message.getAttachmentUrl(),
+                message.getAttachmentType()
+        );
+    });
+}
 }

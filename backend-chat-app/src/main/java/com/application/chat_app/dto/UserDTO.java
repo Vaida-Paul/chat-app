@@ -13,4 +13,5 @@ public class UserDTO {
     private String email;
     private String code;
     private boolean online;
+    private String avatarUrl;
 }

@@ -1,0 +1,253 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.sidebar {
+  width: $sidebar-width;
+  min-width: $sidebar-width;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  z-index: $z-sidebar;
+
+  @media (max-width: #{$bp-mobile}) {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+.header {
+  padding: 18px 14px 16px;
+  flex-shrink: 0;
+  @include flex-between;
+}
+
+.brand {
+  @include flex-start;
+  gap: 9px;
+}
+
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 9px;
+  @include flex-center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brandName {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 3px;
+}
+
+.searchWrap {
+  position: relative;
+  padding: 0 14px 13px;
+  flex-shrink: 0;
+}
+
+.searchBox {
+  @include flex-start;
+  gap: 8px;
+  background: var(--bg-3);
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  padding: 8px 12px;
+  transition:
+    border-color $transition-normal,
+    box-shadow $transition-normal;
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.11);
+  }
+
+  svg {
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-1);
+  &::placeholder {
+    color: var(--text-3);
+  }
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-3);
+  display: flex;
+  line-height: 1;
+  padding: 2px;
+  transition: color $transition-fast;
+  &:hover {
+    color: var(--text-2);
+  }
+}
+
+.searchOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-overlay - 1;
+}
+
+.searchDrop {
+  position: absolute;
+  top: calc(100% - 8px);
+  left: 14px;
+  right: 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  z-index: $z-overlay;
+  animation: dropIn 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.searchLoading {
+  @include flex-center;
+  padding: 20px;
+}
+.searchEmpty {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.searchResult {
+  @include flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: var(--bg-4);
+  }
+}
+
+.resultText {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  @include truncate;
+}
+
+.resultSub {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+  @include truncate;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 0 18px 8px;
+  flex-shrink: 0;
+}
+
+.convList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 6px;
+  @include thin-scrollbar;
+}
+
+.listLoading {
+  @include flex-center;
+  padding: 32px;
+}
+
+.emptyList {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.7;
+}
+
+.pager {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  @include flex-center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.pgBtn {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-4);
+    color: var(--text-1);
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.pgActive {
+  background: rgba(var(--accent-rgb), 0.12) !important;
+  color: var(--accent) !important;
+  border-color: transparent !important;
+}

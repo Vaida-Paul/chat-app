@@ -14,7 +14,11 @@ public class MessageDTO {
     private String content;
     private Long senderId;
     private String senderUsername;
+    private String senderAvatarUrl;
     private LocalDateTime createdAt;
     private boolean deleted = false;
     private String status;
+    private Long conversationId;
+    private String attachmentUrl;
+    private String attachmentType;
 }

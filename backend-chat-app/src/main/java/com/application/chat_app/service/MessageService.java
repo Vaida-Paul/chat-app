@@ -1,9 +1,6 @@
 package com.application.chat_app.service;
 
-import com.application.chat_app.dto.DeliveryReceiptPayload;
-import com.application.chat_app.dto.MessageDTO;
-import com.application.chat_app.dto.ReadReceiptPayload;
-import com.application.chat_app.dto.TypingPayload;
+import com.application.chat_app.dto.*;
 import com.application.chat_app.model.*;
 import com.application.chat_app.repository.*;
 import com.application.chat_app.util.SecurityUtil;
@@ -14,6 +11,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -52,7 +51,7 @@ public class MessageService {
     }
 
     @Transactional
-    public MessageDTO saveMessage(String senderEmail, Long conversationId, String content) {
+    public MessageDTO saveMessage(String senderEmail, Long conversationId, String content, String attachmentUrl, String attachmentType) {
         User sender = userRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> new EntityNotFoundException("Sender not found"));
 
@@ -73,11 +72,14 @@ public class MessageService {
         message.setSender(sender);
         message.setContent(content);
         message.setDeleted(false);
+        message.setAttachmentUrl(attachmentUrl);
+        message.setAttachmentType(attachmentType);
         message = messageRepository.save(message);
 
 
         MessageStatus status = new MessageStatus();
-        status.setId(new MessageStatusId(message.getId(), recipient.getId()));
+
+        status.setId(new MessageStatusId(recipient.getId(), message.getId()));
         status.setMessage(message);
         status.setUser(recipient);
         status.setStatus(MessageStatus.Status.SENT);
@@ -100,7 +102,7 @@ public class MessageService {
         User receiver = userRepository.findByEmail(receiveEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        MessageStatusId messageStatusId = new MessageStatusId(messageId, receiver.getId());
+        MessageStatusId messageStatusId = new MessageStatusId(receiver.getId(), messageId);
         MessageStatus status =  messageStatusRepository.findById(messageStatusId)
                 .orElseThrow(() -> new EntityNotFoundException("Message status not found"));
 
@@ -141,7 +143,8 @@ public class MessageService {
         var messagesUpdates = messageRepository.findByConversationIdAndSenderIdAndIdLessThanEqual(conversation.getId(), otherUser.getId(), payload.getLastReadMessageId());
 
         for (Message msg : messagesUpdates) {
-            MessageStatusId messageStatusId = new MessageStatusId(msg.getId(), reader.getId());
+
+            MessageStatusId messageStatusId = new MessageStatusId(reader.getId(), msg.getId());
             MessageStatus status = messageStatusRepository.findById(messageStatusId).orElse(null);
             if (status != null && status.getStatus() !=  MessageStatus.Status.READ) {
                 status.setStatus(MessageStatus.Status.READ);
@@ -178,6 +181,47 @@ public class MessageService {
         );
     }
 
+    public void handleSignal(String senderEmail, CallSignalPayload payload) {
+
+        if (payload == null) {
+            throw new IllegalArgumentException("Signal payload cannot be null");
+        }
+
+        if (payload.getConversationId() == null) {
+            throw new IllegalArgumentException("Conversation ID cannot be null");
+        }
+
+
+
+        User sender = userRepository.findByEmail(senderEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Sender not found: " + senderEmail));
+
+        Conversation conversation = conversationRepository.findById(payload.getConversationId())
+                .orElseThrow(() -> new EntityNotFoundException("Conversation not found: " + payload.getConversationId()));
+
+        List<ConversationParticipant> participants = participantRepository.findByConversationId(conversation.getId());
+
+        if (participants.isEmpty()) {
+            throw new IllegalStateException("No participants found for conversation: " + conversation.getId());
+        }
+
+        ConversationParticipant recipientParticipant = participants.stream()
+                .filter(p -> !p.getUser().getId().equals(sender.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No recipient found for conversation: " + conversation.getId()));
+
+        User recipient = recipientParticipant.getUser();
+
+        payload.setSenderId(sender.getId());
+        payload.setSenderName(sender.getUsername());
+
+        messagingTemplate.convertAndSendToUser(
+                recipient.getEmail(),
+                "/queue/signal",
+                payload
+        );
+    }
+
     @Transactional
     public void deleteMessage(Long messageId) {
         User currentUser = securityUtil.getCurrentUser();
@@ -193,15 +237,20 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    private MessageDTO convertToDTO(Message message, User sender, String status) {
-        return new MessageDTO(
-                message.getId(),
-                message.isDeleted() ? null : message.getContent(),
-                sender.getId(),
-                sender.getUsername(),
-                message.getCreatedAt(),
-                message.isDeleted(),
-                status
-        );
-    }
+
+private MessageDTO convertToDTO(Message message, User sender, String status) {
+    return new MessageDTO(
+            message.getId(),
+            message.isDeleted() ? null : message.getContent(),
+            sender.getId(),
+            sender.getUsername(),
+            sender.getAvatarUrl(),
+            message.getCreatedAt(),
+            message.isDeleted(),
+            status,
+            message.getConversation().getId(),
+            message.getAttachmentUrl(),
+            message.getAttachmentType()
+    );
+}
 }

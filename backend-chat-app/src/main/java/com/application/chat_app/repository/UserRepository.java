@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email LIKE %:query% OR u.code LIKE %:query%")
     List<User> findByEmailContainingOrCodeContaining(@Param("query") String query);
+    Optional<User> findByVerificationToken(String token);
+    Optional<User> findByResetToken(String token);
 }

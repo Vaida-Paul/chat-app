@@ -12,4 +12,5 @@ public interface ConversationListView {
     LocalDateTime getLastMessageTimestamp();
     Long getLastMessageSenderId();
     Long getUnreadCount();
+    String getAvatarUrl();
 }

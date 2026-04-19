@@ -1,0 +1,94 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal - 1;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: $z-modal;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: $radius-xl;
+  padding: 26px;
+  width: 340px;
+  box-shadow: var(--shadow);
+  animation: scaleIn 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.actions {
+  @include flex-start;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--bg-4);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover { color: var(--text-1); background: var(--bg-5); }
+}
+
+.confirmBtn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-fast;
+}
+
+.danger {
+  background: rgba(230, 49, 79, 0.12);
+  color: #e6314f;
+
+  &:hover { background: #e6314f; color: #fff; }
+}
+
+.primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.35);
+
+  &:hover { opacity: 0.88; transform: translateY(-1px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9) translateY(10px); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1)    translateY(0);   }
+}

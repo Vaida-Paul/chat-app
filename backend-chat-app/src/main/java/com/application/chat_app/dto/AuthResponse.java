@@ -11,5 +11,11 @@ public class AuthResponse {
 
     private String email;
 
+    private String username;
+
+    private String code;
+
+    private String avatarUrl;
+
     private Long id;
 }

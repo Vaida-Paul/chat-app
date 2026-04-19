@@ -6,4 +6,6 @@ import lombok.Data;
 public class MessagePayload {
     private Long conversationId;
     private String content;
+    private String attachmentUrl;
+    private String attachmentType;
 }

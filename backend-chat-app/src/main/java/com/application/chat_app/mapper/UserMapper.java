@@ -11,7 +11,8 @@ public class UserMapper {
                 user.getUsername(),
                 user.getEmail(),
                 user.getCode(),
-                false
+                false,
+                user.getAvatarUrl()
         );
     }
 }

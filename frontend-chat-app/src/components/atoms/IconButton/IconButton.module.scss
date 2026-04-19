@@ -1,0 +1,56 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.btn {
+  @include icon-btn-base;
+  border-radius: $radius-sm;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+}
+
+.variant-default {
+  background: var(--bg-3);
+  border-color: var(--border);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--bg-4);
+    color: var(--text-1);
+    border-color: var(--border-2);
+  }
+}
+
+.variant-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--bg-3);
+    color: var(--text-1);
+    border-color: var(--border);
+  }
+}
+
+.variant-danger {
+  background: var(--bg-3);
+  border-color: var(--border);
+  color: var(--text-2);
+
+  &:hover {
+    background: rgba(230, 49, 79, 0.12);
+    color: #e6314f;
+    border-color: rgba(230, 49, 79, 0.2);
+  }
+}
+
+.active {
+  background: rgba(var(--accent-rgb), 0.12) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
