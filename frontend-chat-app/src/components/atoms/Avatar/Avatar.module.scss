@@ -1,0 +1,71 @@
+@use "@/styles/variables" as *;
+
+.wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  border-radius: $radius-circle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  user-select: none;
+  transition: transform $transition-fast !important;
+  flex-shrink: 0;
+}
+
+.av-0 {
+  background: linear-gradient(140deg, #7c6af7, #a78bfa);
+}
+.av-1 {
+  background: linear-gradient(140deg, #0870f5, #38b8f8);
+}
+.av-2 {
+  background: linear-gradient(140deg, #e6314f, #f87090);
+}
+.av-3 {
+  background: linear-gradient(140deg, #28b558, #60e898);
+}
+.av-4 {
+  background: linear-gradient(140deg, #f59e0b, #fcd34d);
+}
+.av-5 {
+  background: linear-gradient(140deg, #ec4899, #f472c4);
+}
+.av-6 {
+  background: linear-gradient(140deg, #14b8a6, #34d399);
+}
+.av-7 {
+  background: linear-gradient(140deg, #8b5cf6, #c084fc);
+}
+.av-8 {
+  background: linear-gradient(140deg, #ef4444, #f97316);
+}
+
+.dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 13px;
+  height: 13px;
+  border-radius: $radius-circle;
+  border: 2.5px solid var(--sidebar-bg);
+  transition:
+    background $transition-normal,
+    border-color $transition-normal !important;
+}
+
+.online {
+  background: var(--online);
+}
+.offline {
+  background: var(--text-3);
+}
+
+.avatarImage {
+  border-radius: 50%;
+  object-fit: cover;
+}

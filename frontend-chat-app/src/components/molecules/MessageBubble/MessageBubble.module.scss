@@ -1,0 +1,245 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  margin: 1px 0;
+
+  &.mine {
+    flex-direction: row-reverse;
+  }
+  &.theirs {
+    flex-direction: row;
+  }
+}
+
+.miniAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: $radius-circle;
+  background: linear-gradient(
+    140deg,
+    var(--accent),
+    rgba(var(--accent-rgb), 0.65)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+
+  &.ghost {
+    visibility: hidden;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  max-width: 62%;
+
+  .mine & {
+    align-items: flex-end;
+  }
+  .theirs & {
+    align-items: flex-start;
+  }
+}
+
+.bubble {
+  padding: 9px 13px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;
+  position: relative;
+  cursor: default;
+  animation: bubbleIn 0.22s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+  transition: transform $transition-fast !important;
+
+  &:hover {
+    transform: scale(1.012);
+
+    .actions {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+
+  .mine & {
+    background: var(--out-bg);
+    color: var(--out-text);
+    border-bottom-right-radius: 4px;
+  }
+
+  .theirs & {
+    background: var(--in-bg);
+    color: var(--in-text);
+    border: 1px solid var(--in-border);
+    border-bottom-left-radius: 4px;
+  }
+
+  &.deleted {
+    opacity: 0.55;
+    font-style: italic;
+    font-size: 13px;
+  }
+}
+
+// Hover action overlay
+.actions {
+  position: absolute;
+  top: -32px;
+  right: 0;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: 9px;
+  padding: 3px;
+  box-shadow: var(--shadow-sm);
+  transition: opacity $transition-fast !important;
+  z-index: $z-dropdown;
+}
+
+.actionBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast !important;
+
+  &:hover {
+    background: var(--bg-5);
+    color: #e6314f;
+  }
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// Footer: time + ticks
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 3px;
+  padding: 0 3px;
+}
+
+.time {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.tick {
+  width: 12px;
+  height: 12px;
+
+  &.sent {
+    color: var(--text-3);
+  }
+  &.delivered {
+    color: var(--text-2);
+  }
+  &.read {
+    color: var(--accent);
+  }
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.mine {
+  flex-direction: row-reverse;
+}
+.theirs {
+  flex-direction: row;
+}
+
+.mine .col {
+  align-items: flex-end;
+}
+.theirs .col {
+  align-items: flex-start;
+}
+
+.mine .bubble {
+  background: var(--out-bg);
+  color: var(--out-text);
+  border-bottom-right-radius: 4px;
+}
+
+.theirs .bubble {
+  background: var(--in-bg);
+  color: var(--in-text);
+  border: 1px solid var(--in-border);
+  border-bottom-left-radius: 4px;
+}
+
+.deleted {
+  opacity: 0.55;
+  font-style: italic;
+  font-size: 13px !important;
+}
+
+.ghost {
+  visibility: hidden;
+}
+
+.sent {
+  color: var(--text-3);
+}
+.delivered {
+  color: var(--text-2);
+}
+.read {
+  color: var(--accent);
+}
+
+// .miniAvatar {
+//   background: var(--bg-3); // default background for initials
+//   border-radius: 50%;
+//   // ... other styles
+// }
+
+.miniAvatar.hasImage {
+  background: transparent; // remove background when an image is shown
+}
+
+.attachmentImage {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  object-fit: cover;
+  display: block;
+}
+
+.messageText {
+  word-break: break-word;
+  white-space: pre-wrap;
+}

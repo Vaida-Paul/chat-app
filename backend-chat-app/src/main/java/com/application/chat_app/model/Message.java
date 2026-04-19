@@ -39,6 +39,12 @@ public class Message {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "attachment_url")
+    private String attachmentUrl;
+
+    @Column(name = "attachment_type")
+    private String attachmentType;
+
     @Column(nullable = false)
     private boolean deleted = false;
 }

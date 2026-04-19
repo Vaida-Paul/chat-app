@@ -16,4 +16,5 @@ public class ConversationDTO {
     private MessageDTO lastMessage;
     private Long unreadCount;
     private LocalDateTime lastMessageTimestamp;
+    private String recipientAvatarUrl;
 }

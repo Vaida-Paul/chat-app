@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { User } from "../types";
+import type { AuthResponse, UserDTO } from "@/types";
 
 interface AuthState {
   token: string | null;
-  user: User | null;
+  user: UserDTO | null;
   isAuthenticated: boolean;
-  setAuth: (token: string, user: User) => void;
-  updateUser: (user: Partial<User>) => void;
+
+  setAuth: (response: AuthResponse) => void;
+  updateUser: (partial: Partial<UserDTO>) => void;
   logout: () => void;
 }
 
@@ -18,9 +19,18 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
 
-      setAuth(token, user) {
-        localStorage.setItem("token", token);
-        set({ token, user, isAuthenticated: true });
+      setAuth(response) {
+        localStorage.setItem("echo_token", response.token);
+
+        const user: UserDTO = {
+          id: response.id,
+          username: response.username ?? response.email,
+          email: response.email,
+          code: response.code,
+          avatarUrl: response.avatarUrl,
+        };
+
+        set({ token: response.token, user, isAuthenticated: true });
       },
 
       updateUser(partial) {
@@ -30,16 +40,18 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout() {
-        localStorage.removeItem("token");
+        localStorage.removeItem("echo_token");
         set({ token: null, user: null, isAuthenticated: false });
       },
     }),
     {
-      name: "auth",
+      name: "echo-auth",
       partialize: (state) => ({ token: state.token, user: state.user }),
       onRehydrateStorage: () => (state) => {
         if (state?.token && state.user) {
           state.isAuthenticated = true;
+
+          localStorage.setItem("echo_token", state.token);
         }
       },
     },

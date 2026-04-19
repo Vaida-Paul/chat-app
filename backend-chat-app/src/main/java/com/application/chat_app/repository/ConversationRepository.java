@@ -10,32 +10,35 @@ import org.springframework.data.repository.query.Param;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
     @Query(value = """
-        SELECT 
-            c.id AS conversationId,
-            u.id AS otherUserId,
-            u.username AS otherUsername,
-            u.email AS otherEmail,
-            u.code AS otherCode,
-            m.content AS lastMessageContent,
-            m.created_at AS lastMessageTimestamp,
-            m.sender_id AS lastMessageSenderId,
-            (SELECT COUNT(*) FROM messages msg 
-             WHERE msg.conversation_id = c.id 
-               AND msg.sender_id != :currentUserId 
-               AND msg.id > cp.last_read_message_id) AS unreadCount
-        FROM conversation_participants cp
-        JOIN conversations c ON cp.conversation_id = c.id
-        JOIN conversation_participants cp_other ON c.id = cp_other.conversation_id AND cp_other.user_id != :currentUserId
-        JOIN users u ON cp_other.user_id = u.id
-        LEFT JOIN LATERAL (
-            SELECT content, created_at, sender_id
-            FROM messages
-            WHERE conversation_id = c.id
-            ORDER BY created_at DESC
-            LIMIT 1
-        ) m ON true
-        WHERE cp.user_id = :currentUserId
-        ORDER BY (unreadCount > 0) DESC, m.created_at DESC NULLS LAST
+        SELECT * FROM (
+            SELECT 
+                c.id AS conversationId,
+                u.id AS otherUserId,
+                u.username AS otherUsername,
+                u.email AS otherEmail,
+                u.code AS otherCode,
+                u.avatar_url AS avatarUrl,
+                m.content AS lastMessageContent,
+                m.created_at AS lastMessageTimestamp,
+                m.sender_id AS lastMessageSenderId,
+                (SELECT COUNT(*) FROM messages msg 
+                 WHERE msg.conversation_id = c.id 
+                   AND msg.sender_id != :currentUserId 
+                   AND msg.id > cp.last_read_message_id) AS unreadCount
+            FROM conversation_participants cp
+            JOIN conversations c ON cp.conversation_id = c.id
+            JOIN conversation_participants cp_other ON c.id = cp_other.conversation_id AND cp_other.user_id != :currentUserId
+            JOIN users u ON cp_other.user_id = u.id
+            LEFT JOIN LATERAL (
+                SELECT content, created_at, sender_id
+                FROM messages
+                WHERE conversation_id = c.id
+                ORDER BY created_at DESC
+                LIMIT 1
+            ) m ON true
+            WHERE cp.user_id = :currentUserId
+        ) AS sub
+        ORDER BY (unreadCount > 0) DESC, lastMessageTimestamp DESC NULLS LAST
         """,
             countQuery = """
             SELECT COUNT(*)

@@ -20,11 +20,18 @@ public class ChatController {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    @MessageMapping("/chat.send")
-    public void sendMessage(MessagePayload payload, SimpMessageHeaderAccessor headerAccessor) {
-        String senderEmail = headerAccessor.getUser().getName();
-        MessageDTO savedMessage = messageService.saveMessage(senderEmail, payload.getConversationId(), payload.getContent());
-    }
+@MessageMapping("/chat.send")
+public void sendMessage(MessagePayload payload, SimpMessageHeaderAccessor headerAccessor) {
+    String senderEmail = headerAccessor.getUser().getName();
+    MessageDTO savedMessage = messageService.saveMessage(
+            senderEmail, payload.getConversationId(), payload.getContent(), payload.getAttachmentUrl(), payload.getAttachmentType()
+    );
+    simpMessagingTemplate.convertAndSendToUser(
+            senderEmail,
+            "/queue/messages",
+            savedMessage
+    );
+}
 
     @MessageMapping("/chat.typing")
     public void typingIndicator(TypingPayload payload, SimpMessageHeaderAccessor headerAccessor) {
@@ -42,5 +49,11 @@ public class ChatController {
     public void markAsDelivered(DeliveryReceiptPayload payload, SimpMessageHeaderAccessor headerAccessor) {
         String receiverEmail = headerAccessor.getUser().getName();
         messageService.markMessageAsDelivered(receiverEmail,payload.getMessageId());
+    }
+
+    @MessageMapping("/chat.signal")
+    public void handleSignal(CallSignalPayload payload, SimpMessageHeaderAccessor headerAccessor) {
+        String senderEmail = headerAccessor.getUser().getName();
+        messageService.handleSignal(senderEmail, payload);
     }
 }

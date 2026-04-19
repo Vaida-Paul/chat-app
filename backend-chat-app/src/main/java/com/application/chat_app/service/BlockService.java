@@ -46,11 +46,13 @@ public class BlockService {
 
     @Transactional
     public void unblockUser(Long blockedUserId) {
-        User blocker = securityUtil.getCurrentUser();
-        BlockId blockId = new BlockId(blocker.getId(), blockedUserId);
-        if (blockRepository.existsById(blockId)) {
-            blockRepository.deleteById(blockId);
-        }
+        User currentUser =  securityUtil.getCurrentUser();
+
+        BlockId blockId1 = new BlockId(currentUser.getId(), blockedUserId);
+        blockRepository.findById(blockId1).ifPresent(blockRepository::delete);
+
+        BlockId blockId2 = new BlockId(blockedUserId, currentUser.getId());
+        blockRepository.findById(blockId2).ifPresent(blockRepository::delete);
     }
 
     public boolean isBlocked(Long userId1, Long userId2) {
