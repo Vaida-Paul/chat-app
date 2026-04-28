@@ -24,9 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
-        "/api/auth/",
-        "/ws/",
-        "/h2-console/"
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/forgot-password",
+    "/api/auth/reset-password",
+    "/api/auth/verify",
+    "/ws/",
+    "/h2-console/"
     );
 
     private final JwtUtil jwtUtil;
