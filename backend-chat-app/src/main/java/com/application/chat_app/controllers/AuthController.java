@@ -31,12 +31,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request,
                                       HttpServletRequest httpRequest) {
-        boolean captchaOk = turnstileService.verifyToken(
-                request.getCaptchaToken(), httpRequest.getRemoteAddr());
-        if (!captchaOk) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Captcha verification failed"));
-        }
+        // boolean captchaOk = turnstileService.verifyToken(
+        //         request.getCaptchaToken(), httpRequest.getRemoteAddr());
+        // if (!captchaOk) {
+        //     return ResponseEntity.badRequest()
+        //             .body(Map.of("message", "Captcha verification failed"));
+        // }
         authService.register(request);
         return ResponseEntity.ok(Map.of("message", "Verification email sent"));
     }
