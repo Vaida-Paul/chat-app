@@ -31,6 +31,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request,
                                       HttpServletRequest httpRequest) {
+
+        //FIX: in the future
         // boolean captchaOk = turnstileService.verifyToken(
         //         request.getCaptchaToken(), httpRequest.getRemoteAddr());
         // if (!captchaOk) {
