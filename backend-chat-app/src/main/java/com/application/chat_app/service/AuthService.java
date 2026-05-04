@@ -24,9 +24,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final EmailService  emailService;
+    private final ResendEmailService emailService;
 
-    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService) {
+    public AuthService(AuthenticationManager authenticationManager,
+                       UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil,
+                       ResendEmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -34,26 +38,25 @@ public class AuthService {
         this.emailService = emailService;
     }
 
+    @Transactional
+    public void register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already in use");
+        }
 
-@Transactional
-public void register(RegisterRequest request) {
-    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-        throw new RuntimeException("Email already in use");
+        String token = UUID.randomUUID().toString();
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmailVerified(false);
+        user.setVerificationToken(token);
+        user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+        emailService.sendVerificationEmail(user.getEmail(), token);
     }
-
-    String token = UUID.randomUUID().toString();
-
-    User user = new User();
-    user.setUsername(request.getUsername());
-    user.setEmail(request.getEmail());
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-    user.setEmailVerified(false);
-    user.setVerificationToken(token);
-    user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(5));
-
-    userRepository.save(user);
-    emailService.sendVerificationEmail(user.getEmail(), token);
-}
 
     @Transactional
     public AuthResponse verifyEmail(String token) {
@@ -113,7 +116,6 @@ public void register(RegisterRequest request) {
 
     @Transactional
     public void requestPasswordReset(String email) {
-
         userRepository.findByEmail(email).ifPresent(user -> {
             String token = UUID.randomUUID().toString();
             user.setResetToken(token);
