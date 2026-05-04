@@ -63,7 +63,7 @@ public class EmailService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("api-key", brevoApiKey);
 
-        String senderEmail = "vaidapaul29@gmail.com";
+        String senderEmail = "echochat.application@gmail.com";
 
         Map<String, Object> body = Map.of(
                 "sender", Map.of("email", senderEmail, "name", "Echo"),
